@@ -40,10 +40,8 @@ The following columns have to be present in the input df.
 > You may want to **uninstall the Windows Store version** before proceeding with the official installation.
 
 - ✅ **Best source**: Install from the official Python website:  
-  <img src="https://github.com/user-attachments/assets/e303f6be-96a1-4422-9add-6b97980acde9" width="500"/>
 
 - ✅ **During installation**, **tick the "Add Python to PATH" box**:  
-  <img src="https://github.com/user-attachments/assets/5ed8d756-6d5c-4380-81d5-4ab1a6100ea2" width="500"/>
 
 - 🔍 **Find the path to your Python installation:**
   - Open a command line tool (e.g., search for `cmd` in the Windows search bar).
@@ -52,9 +50,6 @@ The following columns have to be present in the input df.
     ```
     where python
     ```
-
-  - Example output:  
-    <img src="https://github.com/user-attachments/assets/3b593c31-a0df-4518-a82c-0be6834cf844" width="300"/>
 
   - Use the **path before `python.exe`** for integration into R (e.g., when setting `use_python` or `RETICULATE_PYTHON`).
 
@@ -279,8 +274,7 @@ spqrp$plot_distances_neighbours_with_coloring_hue(
   df_name = "Cohort A on Cohort A"
 )
 ```
-It shows the result in RStudio like <img src="https://github.com/user-attachments/assets/8a45e309-b77a-474d-972d-e61ba52424ca" width="500"/>
-You can preview it directly in RStudio or save the plot with 
+It shows the result in RStudio and you can preview it directly in RStudio or save the plot with 
 ```r
 plt <- import("matplotlib.pyplot")
 plt$savefig("spqrp_graph.png", dpi=300, bbox_inches="tight")
@@ -289,8 +283,6 @@ plt$savefig("spqrp_graph.png", dpi=300, bbox_inches="tight")
 ### Visualizing a subset
 To visualize only a subset of samples one can run the function with handing over ```subset_samples=list("9_0","23_1")``` to
 ```plot_distances_neighbours_with_coloring_hue```
-
-<img src="https://github.com/user-attachments/assets/b4745354-a834-4678-8a29-f1c4a3ed1162" width="300"/>
 
 ### Additional Information
 

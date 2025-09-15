@@ -1,0 +1,14 @@
+matplotlib==3.10.5
+networkx==3.5
+numpy<=2.2
+pandas==2.3.2
+scikit_learn<1.7
+scipy==1.16.1
+seaborn==0.13.2
+setuptools==80.9.0
+llvmlite>=0.40.0
+numba==0.61.2
+umap-learn==0.5.6
+
+
+

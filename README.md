@@ -16,6 +16,16 @@ Distance Calculation & Threshold-based approach:
 
 ## 📖 Table of Contents
 
+- [Input Data Format](#input-data-format)
+- [Example Files & Instruction](#example-files--instruction)
+- [Requirements to use SPQRP in R/ RStudio](#requirements-to-use-spqrp-in-r-rstudio)
+- [How to run the Package in Rstudio](#how-to-run-the-package-in-rstudio)
+- [Clustering: run_clustering()](#clustering-run-clustering)
+- [Threshold-Based: Running Analysis](#threshold-based-running-analysis-with-default-settings---perform_distance_evaluation_on_ranked_proteins)
+- [Running analysis with optimizing cutoff for the distance metric](#running-analysis-with-optimizing-cutoff-for-the-distance-metric--optimize_parameters)
+- [Calculating ranking with SPQRP-Classifier](#calculating-ranking-with-spqrp-classifier)
+- [Additional Information](#additional-information)
+- [Extra Details about Clustering](#extra-details-about-clustering)
 ---
 
 ## Input Data Format

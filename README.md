@@ -2,34 +2,21 @@
 # SPQRP 
 Sample Provenance Quality Resolver in Proteomics is a tool that provides quality assessment for plasma-MS-proteome studies. Recent advancements in MS technology and lab methods opened the door for large-scale proteomics but also led to a growing concern regarding sample mix-ups. We built this package to help scientists evaluate whether their sample data is safe for further analysis.
 The package now offers functions that can also be used in R code.
-Distance Calculation & Threshold-based approach:
-- ```result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df = df)``` can be used to apply a distance metric on your data set and retrieve performance metrics based on a threshold.
-- ```results <- spqrp$optimize_parameters(df = df)``` can be used to find the optimized parameters for perform_distance_evaluation_on_ranked_proteins for a range of n  proteins used.
 Clustering-based approach & visualization:
 - `run_clustering` calls:
   - `cluster_samples_iteratively`: creates a graph in a dimensionality reduced space (e.g. with UMAP) based on the distances from perform_distance_evaluation_on_ranked_proteins and can cluster iteratively based on the n nearest neighbours per sample.
   -  `plot_distances_neighbours_with_coloring_hue`: visualizes the graph from cluster_samples_iteratively based on the original data labeling.
+
+Distance Calculation & Threshold-based approach:
+- ```result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df = df)``` can be used to apply a distance metric on your data set and retrieve performance metrics based on a threshold.
+- ```results <- spqrp$optimize_parameters(df = df)``` can be used to find the optimized parameters for perform_distance_evaluation_on_ranked_proteins for a range of n  proteins used.
 
 
 ---
 
 ## 📖 Table of Contents
 
-- [1. Overview](spqrp)
-- [2. Input Data Format](#-input-data-format)
-- [3. Requirements to use SPQRP in R/RStudio](requirements-to-use-spqrp-in-r-rstudio)
-  - [3.1 Python Installation](1-python-installation)
-  - [3.2 Running the Package in RStudio](how-to-run-the-package-in-rstudio)
-- [4. Running Analysis](2-running-analysis-with-default-settings---perform_distance_evaluation_on_ranked_proteins)
-  - [4.1 Optimizing Parameters](3-running-analysis-with-optimizing-cutoff-for-the-distance-metric--optimize_parameters)
-  - [4.2 Clustering and Visualization](4-clustering-approach-and-visualizing-results--cluster_samples_iteratively--plot_distances_neighbours_with_coloring_hue)
-- [5. Additional Information](additional-information)
-  - [5.1 Visualizing a Subset](visualizing-a-subset)
-  - [5.2 UMAP with Small Sample Sizes](note-on-umap-with-small-sample-sizes)
-
 ---
-
-
 
 ## Input Data Format
 1. Cohort data: protein intensities per sample
@@ -50,6 +37,35 @@ The following columns have to be present in the input df.
 | `Protein`   | Name or identifier of the protein  |
 | `Importance`| Importance/ Ranking of the protein |
 
+
+# Example Files & Instruction
+To get an overview how to use our code in python or R take a look at example_mock_data.py or example_mock_data.rmd
+
+For Python usage: 
+1. Download/ clone the repository
+2. Open a terminal where the repository is saved on your computer and [create a new environment from requirements.txt](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
+   - (Windows: create a new environemnt: ```py -m venv .venv```, activate it ```.venv\Scripts\activate```, install requirements: ```py -m pip install -r requirements.txt```)
+For R:
+Follow the instructions in the .rmd file:
+  ```{r}
+  library(reticulate)
+  use_python("path/to/python/environment", required = TRUE)
+  virtualenv_create("env")
+  use_virtualenv("env",required=TRUE)
+  py_install("git+https://github.com/fhradilak/spqrp.git",envname="env",method="virtualenv", upgrade=True, pip = True)
+  spqrp <- import("spqrp")
+  
+  ```
+
+For both:
+1. Check that the data requirments are met.
+2. Load your data:
+   - protein intensity data
+   - (optional) your own precomputed protein ranking for the dataset
+4. (optional) preprocess you data on your own or with our preprocessing code (shown in both example files at the bottom)
+5. (optional) compute a new protein ranking based on your data with our classifier - IMPORTANT - only use raw data (except if your own preprocessing is not impacting data leakage)
+6. Clustering: Run Clustering with the selected ranking.
+7. (additional): Run the threshol-based method.
 
 
 # Requirements to use SPQRP in R/ RStudio
@@ -95,8 +111,67 @@ spqrp <- import("spqrp")
 
 ```
 )
-<details>
-  <summary> ## 2. Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins</summary>
+
+## 2. Clustering:`run_clustering()`
+
+### 📌 Function Purpose
+`run_clustering()` clusters the samples based on the precalculated distances for all sample pairings. `n_neighbours` is based on the knowledge about the datasets expected sample size. `max_component_size` is a parameter to adjust the maximum final cluster size, usally set to n_neighbours+1. The function `plot_distances_neighbours_with_coloring_hue()` visualizes sample-to-sample relationships from the clustering using either PCA or MDS dimensionality reduction. It highlights patient-specific groupings and nearest neighbors using color-coded nodes and styled edges in a plot.
+
+### ⚙️ Parameters
+
+- **`df`** *(mandatory)*  
+  Input dataframe containing **protein intensity values**.
+- **`ranking`** *(mandatory)*  
+  Protein ranking.
+- **`n_neighbors`** *(mandatory)*  
+  Number of samples that should have an edge drawn for each sample. The n connected samples are n the nearest neighbours.
+- **`max_component_size`** *(mandatory)*  
+  Maximum size of clusters: The respective longest edges are iteratively removed for all connected components until only components/ clusters with maximum max_component_size remain.
+- **`metric`** *(default: manhattan)*
+- **`n`** *(default: 20)*
+  number of proteins used for the distance calculation
+- **`fractional_p`** *(default: 0.98)*
+  p value for fractional distance metric
+- **`plot_name`** *(default: "DF_Ranking_X on DF_Y")*
+
+### 🧪 Example: Basic Usage in R
+
+```r
+df = read.csv("./example_input_cohort_df.csv", stringsAsFactors = FALSE)
+# Create Sample_ID by pasting Px and Time together with an underscore
+#df$Patient_ID <- paste(df$Px, df$Time, sep = "_")
+
+top_importance_path ="./example_protein_ranking.csv"
+
+# precomputed ranking on real world data (recommended to test with):
+#ranking_cohort_a = pd.read_csv("./spqrp/spqrp/data/ranked_classification_importance_cohort_a.csv")
+# ranking = ranking_cohort_a
+
+ranking = read.csv(top_importance_path, header = TRUE, stringsAsFactors = FALSE)
+n_neighbors = 1
+max_component_size = n_neighbors + 1
+spqrp$run_clustering(
+    df=df, ranking=ranking, n_neighbors=1, max_component_size=2, plot_name = "Mock ranking on Mock data"
+)
+```
+##### Example Output on Mock data:
+<img width="1260" height="1485" alt="grafik" src="https://github.com/user-attachments/assets/22fcb145-89b5-4471-92b3-a457db470d29" />
+
+
+### 📤 Output / Plot
+
+- **Nodes**: Each point represents a sample, **colored by cluster status
+  - 🟢 **Green**: Samples from clusters containing only samples with the same patient ID.
+  - 🟣 **Magenta**: Samples from clusters with samples with different patient IDs.
+  - 🟦 **Blue**: Samples that are the single representatives of their patient ID in the data and are singletons in the graph.
+  - 🔴 **Pink**: Samples that have at least one other sample with the same patient ID in the data but are singletons in the graph.
+- **Edges**:
+  - 🟢 **Green**: Same-patient pairs that are nearest neighbors.
+  - 🟣 **Magenta**: Cross-patient pairs that are nearest neighbors.
+---
+
+
+## 3. Threshold-Based: Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins
 
 - `df`: **Protein Intensity Input** *(mandatory)*  
   Input dataframe containing protein intensity values.
@@ -142,7 +217,7 @@ top_importance_path ="path\to\top\importance.csv"
 result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df_filtered = df, top_importance_path = top_importance_path, n=10, p=0.5, remove_list=["p123], metric = "fractional", fractional_p=0.5)
 ```
 
-## 3. Running analysis with optimizing cutoff for the distance metric -optimize_parameters
+## 4. Running analysis with optimizing cutoff for the distance metric -optimize_parameters
 
 ### Default Settings
 
@@ -176,10 +251,31 @@ result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df_filtered = df,
 ```r
 result <- spqrp$optimize_parameters(df = df)
 ```
+## 5. Calculating ranking with SPQRP-Classifier
+IMPORTANT: only use raw data (except if your own preprocessing is not impacting data leakage)
 
-## 4. Clustering Approach and Visualizing Results — `cluster_samples_iteratively` & `plot_distances_neighbours_with_coloring_hue`
+```r
+ranking = read.csv(top_importance_path, header = TRUE, stringsAsFactors = FALSE)
+n_neighbors = 1
+max_component_size = n_neighbors + 1
+spqrp$run_clustering(
+    df=df, ranking=ranking, n_neighbors=1, max_component_size=2, plot_name = "Mock ranking on Mock data"
+)
 
-### 📌 Function Purpose
+```
+
+
+
+# Additional Information
+
+#### Note on UMAP with small sample sizes
+UMAP relies on constructing a k-nearest-neighbor graph to learn the sample manifold. If the number of available samples is small (especially when fewer than ~10–20), this graph becomes unstable or degenerate. In such cases, UMAP may fail, produce warnings, or yield embeddings that are not meaningful. For very small datasets, alternative methods such as PCA or MDS are typically more robust.
+
+
+
+# Extra Details about Clustering
+
+## Clustering Approach and Visualizing Results — `cluster_samples_iteratively` & `plot_distances_neighbours_with_coloring_hue`
 
 `cluster_samples_iteratively` clusters the samples based on the precalculated distances from the result from `result <- spqrp$perform_distance_evaluation_on_ranked_proteins()`. `n_neighbours` is based on the knowledge about the datasets expected sample size. `max_component_size` is a parameter to adjust the maximum final cluster size, usally set to n_neighbours+1.
 ### ⚙️ Parameters
@@ -305,7 +401,4 @@ plt$savefig("spqrp_graph.png", dpi=300, bbox_inches="tight")
 To visualize only a subset of samples one can run the function with handing over ```subset_samples=list("9_0","23_1")``` to
 ```plot_distances_neighbours_with_coloring_hue```
 
-### Additional Information
 
-#### Note on UMAP with small sample sizes
-UMAP relies on constructing a k-nearest-neighbor graph to learn the sample manifold. If the number of available samples is small (especially when fewer than ~10–20), this graph becomes unstable or degenerate. In such cases, UMAP may fail, produce warnings, or yield embeddings that are not meaningful. For very small datasets, alternative methods such as PCA or MDS are typically more robust.

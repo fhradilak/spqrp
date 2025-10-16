@@ -6,3 +6,8 @@ from .core import (
     run_clustering,
 )
 from .plotting import plot_distances_neighbours_with_coloring
+
+from .preprocessing import *
+
+from .protein_selection import train_with_normalise
+

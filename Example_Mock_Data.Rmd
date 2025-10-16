@@ -1,0 +1,109 @@
+---
+title: "R Example for SPQRP on Mock Data"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+## Import Requirements
+```{r}
+library(reticulate)
+use_python("path/to/python/environment", required = TRUE)
+virtualenv_create("env")
+use_virtualenv("env",required=TRUE)
+py_install("git+https://github.com/fhradilak/spqrp.git",envname="env",method="virtualenv", upgrade=True, pip = True)
+spqrp <- import("spqrp")
+
+```
+## Read data and check whether requirements are fullfilled
+```{r}
+df = read.csv("./example_input_cohort_df.csv", stringsAsFactors = FALSE)
+
+# Create Sample_ID by pasting Px and Time together with an underscore
+#df$Patient_ID <- paste(df$Px, df$Time, sep = "_")
+
+
+top_importance_path ="./example_protein_ranking.csv"
+
+# precomputed ranking on real world data (recommended to test with):
+#ranking_cohort_a = pd.read_csv("./spqrp/spqrp/data/ranked_classification_importance_cohort_a.csv")
+# ranking = ranking_cohort_a
+
+```
+
+
+## Run Clustering
+```{r}
+ranking = read.csv(top_importance_path, header = TRUE, stringsAsFactors = FALSE)
+n_neighbors = 1
+max_component_size = n_neighbors + 1
+spqrp$run_clustering(
+    df=df, ranking=ranking, n_neighbors=1, max_component_size=2, plot_name = "Mock ranking on Mock data"
+)
+
+```
+
+## Calculate protein ranking with the spqrp-classifier
+```{r}
+# ⚠️ if you wan't to compute your specific ranking on the RAW data:
+#
+sp
+results = spqrp$train_with_normalise(df)
+# if you want to compute your own ranking on the data uncomment:
+
+new_ranking = spqrp$retrive_ranking(results)
+```
+
+
+## Run Threshold-based
+```{r}
+result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df = df,top_importance_path=top_importance_path, metric = "manhattan", p=0.989, n=20L)
+#perform_distance_evaluation_on_ranked_proteins(df_2,top_importance_df =ranking, metric="fractional", fractional_p=0.989,p=1.7, n = 3),
+```
+
+
+
+
+
+
+
+
+
+
+## Extra: Preprocessing of dataset
+
+```{r}
+df_raw = pd.read_csv("./example_input_cohort_df.csv")
+
+# df_raw["Sample_ID"] = df_raw["Sample"]
+# df_raw["Patient_ID"] = df_raw["Patient"]
+df_new = df_raw
+df_new
+# Preprocessing steps if not already done
+
+# 1. All zero intensity values are turned into NaN values to represent them explicitly as missing values.
+df_new[df_new == 0] = NA
+# 2. The intensities are log_2 transformed.
+df_new = spqrp$preprocessing$log_transform(df_new)
+
+# filter by threshold
+threshold = 0.7
+df_new = spqrp$preprocessing$filter_by_occurrence(df_new, threshold)
+# 4. We perform median normalization per sample, and
+df_new = spqrp$preprocessing$normalize_medianintensity(df_new)
+# 5. we regress out the plate effect.
+df_new = spqrp$preprocessing$plate_correct_residuals_by_protein(df_new)
+
+# Flatten the dataframe safely: drop all existing index, keep only actual columns
+df_new = df_new[, !duplicated(colnames(df_new))]
+rownames(df_new) <- NULL
+df_new
+```
+
+
+
+
+
+

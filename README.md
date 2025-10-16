@@ -16,7 +16,7 @@ Clustering-based approach & visualization:
 ## 📖 Table of Contents
 
 - [1. Overview](spqrp)
-- [2. Input Data Format](-input-data-format)
+- [2. Input Data Format](#-input-data-format)
 - [3. Requirements to use SPQRP in R/RStudio](requirements-to-use-spqrp-in-r-rstudio)
   - [3.1 Python Installation](1-python-installation)
   - [3.2 Running the Package in RStudio](how-to-run-the-package-in-rstudio)

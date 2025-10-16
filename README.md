@@ -1,6 +1,11 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
+
 # SPQRP 
-Sample Provenance Quality Resolver in Proteomics is a tool that provides quality assessment for plasma-MS-proteome studies. Recent advancements in MS technology and lab methods opened the door for large-scale proteomics but also led to a growing concern regarding sample mix-ups. We built this package to help scientists evaluate whether their sample data is safe for further analysis.
+For a no-code local-web tool (drag an drop your data) go to: [SPQRP_TOOl](https://github.com/fhradilak/spqrp_tool)
+
+
+*Sample Provenance Quality Resolver in Proteomics* is a tool that provides quality assessment for plasma-MS-proteome studies. Recent advancements in MS technology and lab methods opened the door for large-scale proteomics but also led to a growing concern regarding sample mix-ups. We built this package to help scientists evaluate whether their sample data is safe for further analysis.
 The package now offers functions that can also be used in R code.
 Clustering-based approach & visualization:
 - `run_clustering` calls:
@@ -16,6 +21,16 @@ Distance Calculation & Threshold-based approach:
 
 ## 📖 Table of Contents
 
+- [Input Data Format](#input-data-format)
+- [Example Files & Instruction](#example-files--instruction)
+- [Requirements to use SPQRP in R/ RStudio](#requirements-to-use-spqrp-in-r-rstudio)
+- [How to run the Package in Rstudio](#how-to-run-the-package-in-rstudio)
+- [Clustering](#2-clustering)
+- [Threshold Based](#3-threshold-based)
+- [Running analysis with optimizing cutoff for the distance metric](#4-running-analysis-with-optimizing-cutoff-for-the-distance-metric)
+- [Calculating ranking with SPQRP-Classifier](#5-calculating-ranking-with-spqrp-classifier)
+- [Additional Information](#additional-information)
+- [Extra Details about Clustering](#extra-details-about-clustering)
 ---
 
 ## Input Data Format
@@ -112,7 +127,7 @@ spqrp <- import("spqrp")
 ```
 )
 
-## 2. Clustering:`run_clustering()`
+## 2. Clustering
 
 ### 📌 Function Purpose
 `run_clustering()` clusters the samples based on the precalculated distances for all sample pairings. `n_neighbours` is based on the knowledge about the datasets expected sample size. `max_component_size` is a parameter to adjust the maximum final cluster size, usally set to n_neighbours+1. The function `plot_distances_neighbours_with_coloring_hue()` visualizes sample-to-sample relationships from the clustering using either PCA or MDS dimensionality reduction. It highlights patient-specific groupings and nearest neighbors using color-coded nodes and styled edges in a plot.
@@ -171,7 +186,8 @@ spqrp$run_clustering(
 ---
 
 
-## 3. Threshold-Based: Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins
+## 3. Threshold Based
+Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins()
 
 - `df`: **Protein Intensity Input** *(mandatory)*  
   Input dataframe containing protein intensity values.
@@ -217,7 +233,8 @@ top_importance_path ="path\to\top\importance.csv"
 result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df_filtered = df, top_importance_path = top_importance_path, n=10, p=0.5, remove_list=["p123], metric = "fractional", fractional_p=0.5)
 ```
 
-## 4. Running analysis with optimizing cutoff for the distance metric -optimize_parameters
+## 4. Running analysis with optimizing cutoff for the distance metric 
+optimize_parameters()
 
 ### Default Settings
 

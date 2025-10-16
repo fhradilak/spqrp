@@ -20,7 +20,7 @@ Distance Calculation & Threshold-based approach:
 - [Example Files & Instruction](#example-files--instruction)
 - [Requirements to use SPQRP in R/ RStudio](#requirements-to-use-spqrp-in-r-rstudio)
 - [How to run the Package in Rstudio](#how-to-run-the-package-in-rstudio)
-- [Clustering](#clustering)
+- [Clustering](#2-clustering)
 - [Threshold Based](#threshold-based-running-analysis-with-default-settings)
 - [Running analysis with optimizing cutoff for the distance metric](#running-analysis-with-optimizing-cutoff-for-the-distance-metric)
 - [Calculating ranking with SPQRP-Classifier](#calculating-ranking-with-spqrp-classifier)

@@ -17,8 +17,15 @@ from sklearn.metrics import (
 )
 from sklearn.metrics.pairwise import nan_euclidean_distances
 import statsmodels.api as sm
-from spqrp.spqrp.filtering import by_isolation_forest, by_isolation_forest_plot
+from .filtering import by_isolation_forest, by_isolation_forest_plot
 
+
+def retrive_ranking(results):
+    df_classification_imp = pd.DataFrame.from_dict(results["results_dict"]["feature_importances"])
+    df_classification_imp = df_classification_imp.rename(columns={"feature": "Protein", "importance":"Importance"})
+    df_classification_imp["Protein"] = df_classification_imp["Protein"].apply(lambda x: x[5:] )
+
+    return df_classification_imp
 
 def pivot_df(
     df, index=["Patient_ID", "Sample_ID"], columns="Protein", values="Intensity"

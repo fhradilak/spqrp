@@ -1,14 +1,34 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 # SPQRP 
 Sample Provenance Quality Resolver in Proteomics is a tool that provides quality assessment for plasma-MS-proteome studies. Recent advancements in MS technology and lab methods opened the door for large-scale proteomics but also led to a growing concern regarding sample mix-ups. We built this package to help scientists evaluate whether their sample data is safe for further analysis.
-
 The package now offers functions that can also be used in R code.
 Distance Calculation & Threshold-based approach:
 - ```result <- spqrp$perform_distance_evaluation_on_ranked_proteins(df = df)``` can be used to apply a distance metric on your data set and retrieve performance metrics based on a threshold.
 - ```results <- spqrp$optimize_parameters(df = df)``` can be used to find the optimized parameters for perform_distance_evaluation_on_ranked_proteins for a range of n  proteins used.
 Clustering-based approach & visualization:
-- `cluster_samples_iteratively`: creates a graph in a dimensionality reduced space (e.g. with UMAP) based on the distances from perform_distance_evaluation_on_ranked_proteins and can cluster iteratively based on the n nearest neighbours per sample.
--  `plot_distances_neighbours_with_coloring_hue`: visualizes the graph from cluster_samples_iteratively based on the original data labeling.
+- `run_clustering` calls:
+  - `cluster_samples_iteratively`: creates a graph in a dimensionality reduced space (e.g. with UMAP) based on the distances from perform_distance_evaluation_on_ranked_proteins and can cluster iteratively based on the n nearest neighbours per sample.
+  -  `plot_distances_neighbours_with_coloring_hue`: visualizes the graph from cluster_samples_iteratively based on the original data labeling.
+
+
+---
+
+## 📖 Table of Contents
+
+- [1. Overview](spqrp)
+- [2. Input Data Format](-input-data-format)
+- [3. Requirements to use SPQRP in R/RStudio](requirements-to-use-spqrp-in-r-rstudio)
+  - [3.1 Python Installation](1-python-installation)
+  - [3.2 Running the Package in RStudio](how-to-run-the-package-in-rstudio)
+- [4. Running Analysis](2-running-analysis-with-default-settings---perform_distance_evaluation_on_ranked_proteins)
+  - [4.1 Optimizing Parameters](3-running-analysis-with-optimizing-cutoff-for-the-distance-metric--optimize_parameters)
+  - [4.2 Clustering and Visualization](4-clustering-approach-and-visualizing-results--cluster_samples_iteratively--plot_distances_neighbours_with_coloring_hue)
+- [5. Additional Information](additional-information)
+  - [5.1 Visualizing a Subset](visualizing-a-subset)
+  - [5.2 UMAP with Small Sample Sizes](note-on-umap-with-small-sample-sizes)
+
+---
+
 
 
 ## 🗃️ Input Data Format
@@ -75,7 +95,8 @@ spqrp <- import("spqrp")
 
 ```
 )
-## 2. Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins
+<details>
+  <summary> ## 2. Running Analysis (with Default Settings) - perform_distance_evaluation_on_ranked_proteins</summary>
 
 - `df`: **Protein Intensity Input** *(mandatory)*  
   Input dataframe containing protein intensity values.

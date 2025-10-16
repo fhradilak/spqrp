@@ -57,9 +57,15 @@ The following columns have to be present in the input df.
 To get an overview how to use our code in python or R take a look at example_mock_data.py or example_mock_data.rmd
 
 For Python usage: 
-1. Download/ clone the repository
+1. [Download/ clone the repository](https://docs.github.com/de/repositories/creating-and-managing-repositories/cloning-a-repository)
 2. Open a terminal where the repository is saved on your computer and [create a new environment from requirements.txt](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
-   - (Windows: create a new environemnt: ```py -m venv .venv```, activate it ```.venv\Scripts\activate```, install requirements: ```py -m pip install -r requirements.txt```)
+   - (Windows: create a new environemnt: ```py -m venv .venv```, activate it ```.venv\Scripts\activate```, ```cd spqrp```, install requirements: ```py -m pip install -r requirements.txt```)
+3. When you want to use jupyter notebook, depending on your IDE you will have to set this .venv as your jupyter kernel:
+   - pip install jupyter
+   - python -m ipykernel install --user --name=.venv --display-name "SPQRP (venv)"
+   - most of the time in the upper right corne of a .ipynb file: select SPQRP (venv) / .venv as your kernel
+   - example: <img width="202" height="79" alt="grafik" src="https://github.com/user-attachments/assets/4e2eae05-37c1-4fdd-9e46-a87b1773364d" />
+
 For R:
 Follow the instructions in the .rmd file:
   ```{r}

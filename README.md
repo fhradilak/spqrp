@@ -23,7 +23,7 @@ Distance Calculation & Threshold-based approach:
 - [Clustering](#2-clustering)
 - [Threshold Based](#3-threshold-based)
 - [Running analysis with optimizing cutoff for the distance metric](#4-running-analysis-with-optimizing-cutoff-for-the-distance-metric)
-- [Calculating ranking with SPQRP-Classifier](#calculating-ranking-with-spqrp-classifier)
+- [Calculating ranking with SPQRP-Classifier](#5-calculating-ranking-with-spqrp-classifier)
 - [Additional Information](#additional-information)
 - [Extra Details about Clustering](#extra-details-about-clustering)
 ---

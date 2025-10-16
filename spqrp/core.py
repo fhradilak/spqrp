@@ -348,8 +348,8 @@ def run_clustering(
     metric="manhattan",
     n=20,
     fractional_p=0.98,
+    plot_name="DF_Ranking_X on DF_Y",
 ):
-
     result_filtered = calculate_pairwise_distances(
         top_importance=ranking, n=n, df=df, metric=metric, fractional_p=fractional_p
     )
@@ -368,7 +368,7 @@ def run_clustering(
         G=G,
         coords_2d=coords_2d,
         figsize=(10, 10),
-        df_name="DF_Ranking_X on DF_Y",
+        df_name=plot_name,
     )
     return {"result_filtered": result_filtered, "G": G}
 

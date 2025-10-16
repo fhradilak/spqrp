@@ -3,5 +3,6 @@ from .core import (
     optimize_parameters,
     cluster_samples_iteratively,
     plot_distances_neighbours_with_coloring_hue,
+    run_clustering,
 )
 from .plotting import plot_distances_neighbours_with_coloring

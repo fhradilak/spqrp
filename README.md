@@ -31,7 +31,7 @@ Clustering-based approach & visualization:
 
 
 
-## 🗃️ Input Data Format
+## Input Data Format
 1. Cohort data: protein intensities per sample
 2. Protein importance ranking list (optional - can use default list)
 

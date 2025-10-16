@@ -590,7 +590,6 @@ def plate_correct_residuals_by_protein(
     sample="Sample_ID",
     figsize=(20, 12),
     impute=False,
-    impute_technique="Median",
     verbose=False,
 ):
     # Drop NA values from 'Intensity'
@@ -627,7 +626,6 @@ def plate_correct_residuals_by_protein(
     y = group_data["Intensity"]
     model = sm.OLS(y, X).fit()
 
-    # Print model summary
     print(model.summary())
 
     # Check if the plate effect is statistically significant

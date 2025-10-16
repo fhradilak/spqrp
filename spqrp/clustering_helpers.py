@@ -1,4 +1,3 @@
-
 from collections import defaultdict
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,8 +6,14 @@ from itertools import combinations
 from sklearn.decomposition import PCA
 from sklearn.manifold import MDS
 from sklearn.metrics import (
-    precision_score, recall_score, f1_score, accuracy_score, balanced_accuracy_score,
-    confusion_matrix, adjusted_rand_score, normalized_mutual_info_score
+    precision_score,
+    recall_score,
+    f1_score,
+    accuracy_score,
+    balanced_accuracy_score,
+    confusion_matrix,
+    adjusted_rand_score,
+    normalized_mutual_info_score,
 )
 from scipy.spatial import ConvexHull
 import matplotlib.patches as patches
@@ -16,24 +21,43 @@ import networkx as nx
 import matplotlib.patches as mpatches
 import matplotlib.lines as mlines
 
-# ======== Graph Creation & Clustering by Splitting ========== 
-def create_graph_based_on_reduction_method(method,n_samples,dist_matrix,sample_names, n_umap_neighbors, random_state, precomputed_graph, sample_index,n_neighbors):
-    if method == 'PCA':
+
+# ======== Graph Creation & Clustering by Splitting ==========
+def create_graph_based_on_reduction_method(
+    method,
+    n_samples,
+    dist_matrix,
+    sample_names,
+    n_umap_neighbors,
+    random_state,
+    precomputed_graph,
+    sample_index,
+    n_neighbors,
+):
+    if method == "PCA":
         J = np.eye(n_samples) - np.ones((n_samples, n_samples)) / n_samples
-        B = -0.5 * J @ (dist_matrix ** 2) @ J
+        B = -0.5 * J @ (dist_matrix**2) @ J
         coords_2d = PCA(n_components=2).fit_transform(B)
-    elif method == 'UMAP':
+    elif method == "UMAP":
         import umap
-        reducer = umap.UMAP(n_components=2, n_neighbors=n_umap_neighbors, metric='precomputed', random_state=random_state)
+
+        reducer = umap.UMAP(
+            n_components=2,
+            n_neighbors=n_umap_neighbors,
+            metric="precomputed",
+            random_state=random_state,
+        )
         coords_2d = reducer.fit_transform(dist_matrix)
-        method = 'UMAP'
+        method = "UMAP"
     elif method == "MDS":
-        coords_2d = MDS(n_components=2, dissimilarity='precomputed', random_state=random_state).fit_transform(dist_matrix)
-        
+        coords_2d = MDS(
+            n_components=2, dissimilarity="precomputed", random_state=random_state
+        ).fit_transform(dist_matrix)
+
     G = nx.Graph()
     for sample in sample_names:
         G.add_node(sample)
-    
+
     drawn_pairs = set()
     connected_samples = set()
 
@@ -46,7 +70,7 @@ def create_graph_based_on_reduction_method(method,n_samples,dist_matrix,sample_n
                 connected_samples.update([u, v])
     else:
         for i in range(n_samples):
-            sorted_idx = np.argsort(dist_matrix[i])[1:n_neighbors + 1]
+            sorted_idx = np.argsort(dist_matrix[i])[1 : n_neighbors + 1]
             for j in sorted_idx:
                 s1, s2 = sample_names[i], sample_names[j]
                 dist = dist_matrix[i, j]
@@ -55,6 +79,7 @@ def create_graph_based_on_reduction_method(method,n_samples,dist_matrix,sample_n
                 drawn_pairs.add(pair)
                 connected_samples.update([s1, s2])
     return G, coords_2d
+
 
 def split_big_component_edges_by_weight(G, max_size):
     """
@@ -70,7 +95,9 @@ def split_big_component_edges_by_weight(G, max_size):
                 continue
             sub = G.subgraph(comp).copy()
             # Get edge with maximum weight (i.e., weakest connection)
-            edge_weights = [(e, sub[e[0]][e[1]].get("weight", 1.0)) for e in sub.edges()]
+            edge_weights = [
+                (e, sub[e[0]][e[1]].get("weight", 1.0)) for e in sub.edges()
+            ]
             # Sort descending by weight
             edge_to_remove = max(edge_weights, key=lambda x: x[1])[0]
             G.remove_edge(*edge_to_remove)
@@ -78,14 +105,26 @@ def split_big_component_edges_by_weight(G, max_size):
             break  # Only remove one per iteration
     return G
 
-#========== Drawing Helpers ========== 
 
-def identify_clusters_singletons(G,sample_to_patient,samples_by_patient, drawn_pairs, sample_names):
+# ========== Drawing Helpers ==========
+
+
+def identify_clusters_singletons(
+    G, sample_to_patient, samples_by_patient, drawn_pairs, sample_names
+):
     # === FP nodes and singleton identification ===
-    nodes_in_fp_cluster = {s for s1, s2 in drawn_pairs if sample_to_patient[s1] != sample_to_patient[s2] for s in (s1, s2)}
-    singleton_nodes = {s for s in sample_names if len(samples_by_patient[sample_to_patient[s]]) == 1}
+    nodes_in_fp_cluster = {
+        s
+        for s1, s2 in drawn_pairs
+        if sample_to_patient[s1] != sample_to_patient[s2]
+        for s in (s1, s2)
+    }
+    singleton_nodes = {
+        s for s in sample_names if len(samples_by_patient[sample_to_patient[s]]) == 1
+    }
+    singleton_graph = {s for s in singleton_nodes if G.degree(s) == 0}
     # === TP nodes identification ===
-    nodes_in_tp_clusters= set()
+    nodes_in_tp_clusters = set()
     for component in nx.connected_components(G):
         component = list(component)
         if len(component) < 2:
@@ -99,23 +138,39 @@ def identify_clusters_singletons(G,sample_to_patient,samples_by_patient, drawn_p
     # ===  Isolated nodes
     isolated_nodes = set()
     for s in sample_names:
-        if s in singleton_nodes or s in nodes_in_fp_cluster or s in nodes_in_tp_clusters:
+        if (
+            s in singleton_nodes
+            or s in nodes_in_fp_cluster
+            or s in nodes_in_tp_clusters
+        ):
             continue
         pid = sample_to_patient[s]
         patient_mates = set(samples_by_patient[pid]) - {s}
         if not any(G.has_edge(s, mate) for mate in patient_mates if mate in G):
             isolated_nodes.add(s)
-            
-    return nodes_in_tp_clusters, nodes_in_fp_cluster, singleton_nodes, isolated_nodes
 
-def draw_convex_hull(samples_by_patient,connected_samples, ax,drawn_pairs, sample_index, coords_2d,tp_color):
+    return nodes_in_tp_clusters, nodes_in_fp_cluster, singleton_graph, isolated_nodes
+
+
+def draw_convex_hull(
+    samples_by_patient,
+    connected_samples,
+    ax,
+    drawn_pairs,
+    sample_index,
+    coords_2d,
+    tp_color,
+):
     # === Draw convex hulls around TP clusters ===
     for pid, sample_list in samples_by_patient.items():
         filtered_samples = [
-            s for s in sample_list
-            if s in connected_samples and any(
+            s
+            for s in sample_list
+            if s in connected_samples
+            and any(
                 tuple(sorted((s, other))) in drawn_pairs
-                for other in sample_list if s != other
+                for other in sample_list
+                if s != other
             )
         ]
 
@@ -135,16 +190,18 @@ def draw_convex_hull(samples_by_patient,connected_samples, ax,drawn_pairs, sampl
             hull = ConvexHull(coords)
             vertices = coords[hull.vertices]
             patch = patches.Polygon(
-                vertices, closed=True,
+                vertices,
+                closed=True,
                 facecolor=tp_color,
                 edgecolor=(0.0, 0.4, 0.0, 0.5),
-                linewidth=1
+                linewidth=1,
             )
             ax.add_patch(patch)
         except Exception as e:
             print(f"Could not compute hull for patient {pid}: {e}")
 
-#========== Performance ========== 
+
+# ========== Performance ==========
 def transitive_performance(sample_names, drawn_pairs, sample_to_patient):
     # === Build Transitive Clusters (Connected Components) ===
     G = nx.Graph()
@@ -152,7 +209,11 @@ def transitive_performance(sample_names, drawn_pairs, sample_to_patient):
     G.add_edges_from(drawn_pairs)
 
     # Cluster assignment: {sample: cluster_id}
-    pred_clusters = {sample: i for i, comp in enumerate(nx.connected_components(G)) for sample in comp}
+    pred_clusters = {
+        sample: i
+        for i, comp in enumerate(nx.connected_components(G))
+        for sample in comp
+    }
     true_clusters = {sample: sample_to_patient[sample] for sample in sample_names}
 
     # === Pairwise Evaluation using Transitive Clusters ===
@@ -179,8 +240,8 @@ def transitive_performance(sample_names, drawn_pairs, sample_to_patient):
     sensitivity = recall_score(y_true, y_pred)
     f1 = f1_score(y_true, y_pred)
     accuracy = accuracy_score(y_true, y_pred)
-    bACC = balanced_accuracy_score(y_true,y_pred)
-    
+    bACC = balanced_accuracy_score(y_true, y_pred)
+
     print("=== Pairwise Clustering Performance (Transitive) ===")
     print(f"TP: {TP}, FP: {FP}, FN: {FN}, TN: {TN}")
     print(f"Precision: {precision:.3f}")
@@ -202,20 +263,20 @@ def transitive_performance(sample_names, drawn_pairs, sample_to_patient):
 
     # === Print False Negative Pairs ===
     if false_negatives:
-        print(f"\nFalse Negative (FN) pairs (same patient but not transitively connected): {len(false_negatives)}")
+        print(
+            f"\nFalse Negative (FN) pairs (same patient but not transitively connected): {len(false_negatives)}"
+        )
         for s1, s2 in false_negatives:
             print(f"  - {s1} <-> {s2}")
     else:
         print("\nNo False Negative (FN) pairs found.")
 
     return {
-    "precision": precision,
-    "sensitivity": sensitivity,
-    "f1": f1,
-    "accuracy": accuracy,
-    "balanced accuracy": bACC,
-    "ari": ari,
-    "nmi": nmi
+        "precision": precision,
+        "sensitivity": sensitivity,
+        "f1": f1,
+        "accuracy": accuracy,
+        "balanced accuracy": bACC,
+        "ari": ari,
+        "nmi": nmi,
     }
-
-

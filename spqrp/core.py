@@ -363,14 +363,20 @@ def run_clustering(
 
     # visualize clustering
     # set name
-    plot_distances_neighbours_with_coloring_hue(
+    result =  plot_distances_neighbours_with_coloring_hue(
         df=df,
         G=G,
         coords_2d=coords_2d,
         figsize=(10, 10),
         df_name=plot_name,
     )
-    return {"result_filtered": result_filtered, "G": G}
+    G = result["G"]
+    cluster_assignments = result["cluster_assignments"]
+    transitive_results = result["transitive_results"]
+    uncertain_samples = result["uncertain_nodes"]
+    error_candidate_samples = result["error_candidates"]
+    
+    return {"result_filtered": result_filtered, "G": G, "cluster_assignments": cluster_assignments, "transitive_results":transitive_results, "uncertain_samples":uncertain_samples, "error_candidate_samples": error_candidate_samples}
 
 
 def cluster_samples_iteratively(
@@ -421,7 +427,7 @@ def plot_distances_neighbours_with_coloring_hue(
     label_offset_y=0.01,
     label_font=6.5,
     df_name="DF_NAME",
-    return_clusters=False,
+    return_clusters=True,
 ):
     fp_color = "#DC267F"  # "#4B0092"
     tp_color = "#1AFF1A"
@@ -591,22 +597,18 @@ def plot_distances_neighbours_with_coloring_hue(
     plt.tight_layout(rect=[0, 0, 0.85, 1])
     plt.savefig("distance_plot.svg")
     plt.show()
+    
+    components = list(nx.connected_components(G))
+    cluster_assignments = {}
+    for cluster_id, component in enumerate(components, start=1):
+        for sample in component:
+            cluster_assignments[sample] = cluster_id
 
-    cluster_assignments = None
-    if return_clusters:
-        components = list(nx.connected_components(G))
-        cluster_assignments = {}
-        for cluster_id, component in enumerate(components, start=1):
-            for sample in component:
-                cluster_assignments[sample] = cluster_id
+    # Print clusters in readable form
+    print("\n=== Cluster Assignments ===")
+    for cluster_id, component in enumerate(components, start=1):
+        print(
+            f"Cluster {cluster_id} ({len(component)} samples): {sorted(component)}"
+        )
 
-        # Print clusters in readable form
-        print("\n=== Cluster Assignments ===")
-        for cluster_id, component in enumerate(components, start=1):
-            print(
-                f"Cluster {cluster_id} ({len(component)} samples): {sorted(component)}"
-            )
-
-        return G, cluster_assignments, transitive_results
-    else:
-        return G
+    return {"G":G, "cluster_assignments":cluster_assignments,"transitive_results":transitive_results, "uncertain_nodes": isolated_nodes, "error_candidates":nodes_with_red_connections }

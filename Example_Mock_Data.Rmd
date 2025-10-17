@@ -39,12 +39,24 @@ top_importance_path ="./example_protein_ranking.csv"
 ranking = read.csv(top_importance_path, header = TRUE, stringsAsFactors = FALSE)
 n_neighbors = 1
 max_component_size = n_neighbors + 1
-spqrp$run_clustering(
+res = spqrp$run_clustering(
     df=df, ranking=ranking, n_neighbors=1, max_component_size=2, plot_name = "Mock ranking on Mock data"
 )
 
 ```
 
+### You can also get the samples belonging to the **error candidates**, and **uncertain samples** as lists, as well as the cluster assignments:
+```{r}
+res$cluster_assignments
+```
+
+```{r}
+res$uncertain_samples
+```
+
+```{r}
+res$error_candidate_samples
+```
 ## Calculate protein ranking with the spqrp-classifier
 ```{r}
 # ⚠️ if you wan't to compute your specific ranking on the RAW data:
@@ -101,6 +113,7 @@ df_new = df_new[, !duplicated(colnames(df_new))]
 rownames(df_new) <- NULL
 df_new
 ```
+
 
 
 

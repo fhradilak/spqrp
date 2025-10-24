@@ -126,7 +126,6 @@ py312 <- "C:/Users/FRH/AppData/Local/Programs/Python/Python312/python.exe"
 virtualenv_create("env", python = py312)
 use_virtualenv("env", required = TRUE)
 py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
-#py_install("statsmodels==0.14.5", envname = "env", method = "virtualenv", pip = TRUE)
 spqrp <- import("spqrp")
 ```
 

@@ -2,21 +2,37 @@
 title: "R Example for SPQRP on Mock Data"
 output: html_notebook
 ---
-
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
+Hint: Try Restart R if you encounter any errors and rerun.
 ## Import Requirements
+#### Use This to run the first time
+```{r}
+Sys.unsetenv("VIRTUAL_ENV") 
+Sys.unsetenv("RETICULATE_PYTHON") # optional, ensure nothing forces a different python 
+
+# if you receive an error even after restaring the R session try this with the path to the R reticulate cache
+#unlink("path/to/_/AppData/Local/R/cache/R/reticulate", recursive = TRUE, force = TRUE)
+library(reticulate)
+virtualenv_remove("env", confirm = FALSE) 
+py312 <- "path/to/python/environment" 
+
+virtualenv_create("env", python = py312)
+use_virtualenv("env", required = TRUE)
+py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
+py_install("statsmodels==0.14.5", envname = "env", method = "virtualenv", pip = TRUE)
+spqrp <- import("spqrp")
+```
+
+#### After the first use this block should suffice instead
 ```{r}
 library(reticulate)
-use_python("path/to/python/environment", required = TRUE)
-virtualenv_create("env")
-use_virtualenv("env",required=TRUE)
-py_install("git+https://github.com/fhradilak/spqrp.git",envname="env",method="virtualenv", upgrade=True, pip = True)
+py312 <- "path/to/python/environment" 
+use_virtualenv("env", required = TRUE)
+py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
 spqrp <- import("spqrp")
-
 ```
+
+
+
 ## Read data and check whether requirements are fullfilled
 ```{r}
 df = read.csv("./example_input_cohort_df.csv", stringsAsFactors = FALSE)
@@ -65,7 +81,7 @@ sp
 results = spqrp$train_with_normalise(df)
 # if you want to compute your own ranking on the data uncomment:
 
-new_ranking = spqrp$retrive_ranking(results)
+new_ranking = spqrp$retrieve_ranking(results)
 ```
 
 
@@ -113,6 +129,7 @@ df_new = df_new[, !duplicated(colnames(df_new))]
 rownames(df_new) <- NULL
 df_new
 ```
+
 
 
 

@@ -112,26 +112,32 @@ For both:
 
 
 # How to run the Package in Rstudio
-## 1. Pull the python package
+### Use This to run the first time
+HINT: Try to Restart R if you encounter any issues.
+```{r}
+Sys.unsetenv("VIRTUAL_ENV") 
+Sys.unsetenv("RETICULATE_PYTHON") # optional, ensure nothing forces a different python 
 
-```r
+#unlink("C:/Users/FRH/AppData/Local/R/cache/R/reticulate", recursive = TRUE, force = TRUE)
 library(reticulate)
-#use_python("C:\\Program Files\\Python312\\", required = TRUE) --> you might need to explicitly set the path to your python installation from the last step from the Python installation
-py_require("git+https://github.com/fhradilak/spqrp.git")
-virtualenv_create("myenv")
-use_virtualenv("myenv",required=TRUE)
-py_install("git+https://github.com/fhradilak/spqrp.git",envname="myenv",method="virtualenv")
+virtualenv_remove("env", confirm = FALSE) 
+py312 <- "C:/Users/FRH/AppData/Local/Programs/Python/Python312/python.exe" 
+
+virtualenv_create("env", python = py312)
+use_virtualenv("env", required = TRUE)
+py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
+#py_install("statsmodels==0.14.5", envname = "env", method = "virtualenv", pip = TRUE)
 spqrp <- import("spqrp")
 ```
 
-( alternatively if you manage your own virtual environment
-```r
+### After the first use this block should suffice instead:
+```{r}
 library(reticulate)
-py_require("git+https://github.com/fhradilak/spqrp.git")
+py312 <- "C:/Users/FRH/AppData/Local/Programs/Python/Python312/python.exe" 
+use_virtualenv("env", required = TRUE)
+py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
 spqrp <- import("spqrp")
-
 ```
-)
 
 ## 2. Clustering
 

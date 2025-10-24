@@ -3,6 +3,7 @@ title: "R Example for SPQRP on Mock Data"
 output: html_notebook
 ---
 Hint: Try Restart R if you encounter any errors and rerun.
+Hint: Try using a R version >(=) 4.4.2
 ## Import Requirements
 #### Use This to run the first time
 ```{r}
@@ -18,7 +19,7 @@ py312 <- "path/to/python/environment"
 virtualenv_create("env", python = py312)
 use_virtualenv("env", required = TRUE)
 py_install("git+https://github.com/fhradilak/spqrp.git", envname = "env", method = "virtualenv", pip = TRUE, upgrade = TRUE)
-py_install("statsmodels==0.14.5", envname = "env", method = "virtualenv", pip = TRUE)
+#py_install("statsmodels==0.14.5", envname = "env", method = "virtualenv", pip = TRUE)
 spqrp <- import("spqrp")
 ```
 
@@ -129,6 +130,7 @@ df_new = df_new[, !duplicated(colnames(df_new))]
 rownames(df_new) <- NULL
 df_new
 ```
+
 
 
 

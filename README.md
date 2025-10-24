@@ -114,6 +114,7 @@ For both:
 # How to run the Package in Rstudio
 ### Use This to run the first time
 HINT: Try to Restart R if you encounter any issues.
+Hint: Try using a R version >(=) 4.4.2
 ```{r}
 Sys.unsetenv("VIRTUAL_ENV") 
 Sys.unsetenv("RETICULATE_PYTHON") # optional, ensure nothing forces a different python 

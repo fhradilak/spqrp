@@ -20,7 +20,7 @@ import statsmodels.api as sm
 from .filtering import by_isolation_forest, by_isolation_forest_plot
 
 
-def retrive_ranking(results):
+def retrieve_ranking(results):
     df_classification_imp = pd.DataFrame.from_dict(results["results_dict"]["feature_importances"])
     df_classification_imp = df_classification_imp.rename(columns={"feature": "Protein", "importance":"Importance"})
     df_classification_imp["Protein"] = df_classification_imp["Protein"].apply(lambda x: x[5:] )

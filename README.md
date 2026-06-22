@@ -2,7 +2,7 @@
 
 
 # SPQRP 
-For a no-code local-web tool (drag an drop your data) go to: [SPQRP_TOOL](https://github.com/fhradilak/spqrp_tool)
+For a no-code local-web tool (drag an drop your data) go to: [SPQRP_TOOL](https://github.com/fhradilak/spqrp_tool).
 For the native R port see: [SPQRP_R](https://github.com/fhradilak/spqrp_r)
 
 

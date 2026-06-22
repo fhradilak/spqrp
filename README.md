@@ -3,6 +3,7 @@
 
 # SPQRP 
 For a no-code local-web tool (drag an drop your data) go to: [SPQRP_TOOL](https://github.com/fhradilak/spqrp_tool)
+For the native R port see: [SPQRP_R](https://github.com/fhradilak/spqrp_r)
 
 
 *Sample Provenance Quality Resolver in Proteomics* is a tool that provides quality assessment for plasma-MS-proteome studies. Recent advancements in MS technology and lab methods opened the door for large-scale proteomics but also led to a growing concern regarding sample mix-ups. We built this package to help scientists evaluate whether their sample data is safe for further analysis.

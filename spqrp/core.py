@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import networkx as nx
 import matplotlib.lines as mlines
+from adjustText import adjust_text
 
 from .helpers import percentile_cutoff, plot_distribution_with_highlights
 from .helpers import (
@@ -426,8 +427,13 @@ def plot_distances_neighbours_with_coloring_hue(
     label_offset_x=0.01,
     label_offset_y=0.01,
     label_font=6.5,
+    legend_font=10,
+    title_font=16,
+    axis_font=14,
+    tick_font=None,
+    auto_adjust_labels=True,
     df_name="DF_NAME",
-    return_clusters=True,
+    save_path="distance_plot.svg",
 ):
     fp_color = "#DC267F"  # "#4B0092"
     tp_color = "#1AFF1A"
@@ -485,6 +491,7 @@ def plot_distances_neighbours_with_coloring_hue(
     )
 
     # === Draw nodes ===
+    text_labels = []
     for name in connected_samples:
         if name not in sample_index:
             continue
@@ -507,9 +514,13 @@ def plot_distances_neighbours_with_coloring_hue(
             label_text = sample_to_patient[name]
         else:
             label_text = name
-        plt.text(
-            x + label_offset_x, y + label_offset_y, label_text, fontsize=label_font
-        )
+        if auto_adjust_labels:
+            # collect; positions are refined after all nodes are drawn
+            text_labels.append(plt.text(x, y, label_text, fontsize=label_font))
+        else:
+            plt.text(
+                x + label_offset_x, y + label_offset_y, label_text, fontsize=label_font
+            )
 
         # === Blue rectangle for singleton nodes ===
         if highlight_singletons and name in singleton_nodes:
@@ -534,6 +545,14 @@ def plot_distances_neighbours_with_coloring_hue(
                 linewidth=2,
             )
             ax.add_patch(circle)
+
+    # === Separate overlapping labels ===
+    if auto_adjust_labels and text_labels:
+        adjust_text(
+            text_labels,
+            ax=ax,
+            arrowprops=dict(arrowstyle="-", color="gray", lw=0.5),
+        )
 
     # === Metrics ===
     transitive_results = transitive_performance(
@@ -579,23 +598,27 @@ def plot_distances_neighbours_with_coloring_hue(
         handles.append(uncertain_handle)
 
     plt.title(
-        f"{method} projection of {df_name} sample Clustering\n", fontsize=16
+        f"{method} projection of {df_name} sample Clustering\n", fontsize=title_font
     )  # Green = TP cluster | Red = FP node | Violet = not connected but same patient
     plt.axis("equal")
     plt.grid(True)
-    plt.legend(handles=handles, loc="best")
+    plt.legend(handles=handles, loc="best", fontsize=legend_font)
     if method.upper() == "PCA":
-        ax.set_xlabel("PCA 1", fontsize=14)
-        ax.set_ylabel("PCA 2", fontsize=14)
+        ax.set_xlabel("PCA 1", fontsize=axis_font)
+        ax.set_ylabel("PCA 2", fontsize=axis_font)
     elif method.upper() == "MDS":
-        ax.set_xlabel("MDS Dimension 1", fontsize=14)
-        ax.set_ylabel("MDS Dimension 2", fontsize=14)
+        ax.set_xlabel("MDS Dimension 1", fontsize=axis_font)
+        ax.set_ylabel("MDS Dimension 2", fontsize=axis_font)
     elif method.upper() == "UMAP":
-        ax.set_xlabel(f"{method} Dim 1", fontsize=14)
-        ax.set_ylabel(f"{method} Dim 2", fontsize=14)
+        ax.set_xlabel(f"{method} Dim 1", fontsize=axis_font)
+        ax.set_ylabel(f"{method} Dim 2", fontsize=axis_font)
+
+    if tick_font is not None:
+        ax.tick_params(axis="both", labelsize=tick_font)
 
     plt.tight_layout(rect=[0, 0, 0.85, 1])
-    plt.savefig("distance_plot.svg")
+    if save_path:
+        plt.savefig(save_path)
     plt.show()
     
     components = list(nx.connected_components(G))
